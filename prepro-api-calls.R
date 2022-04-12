@@ -61,11 +61,25 @@ ocp_bladder_data <-
     names_from = field_name, 
     values_from = value
     ) %>%
-  select(-ic2e_probtotal) # removes column accidentally grabbed in grepl
-
-# NSAID bladder data
-nsaid_avisit_data %>% # do similar steps as above
+  select(-ic2e_probtotal) %>% # removes column accidentally grabbed in grepl
+  mutate(study = "ocp") %>%
+  relocate(study, .before = bladder_testing_timestamp)
   
-# NEXT STEPS:
-# Save the bladder data out and analyze in analysis script
-# also do the same for nsaid data; however, columns are named weird so will have to do in sep scripts
+# NSAID bladder data
+nsaid_bladder_data <- 
+  nsaid_avisit_data %>%
+  filter(grepl("bt", field_name) | grepl("bladder", field_name)) %>%
+  pivot_wider(
+    id_cols = c(record, visit_month), 
+    names_from = field_name, 
+    values_from = value
+  ) %>%
+  select(-followupic2e_probtotal, -ic2e_probtotal) %>% # removes columns
+  mutate(study = "nsaid") %>%
+  relocate(study, .before = bt10b_futime)
+  
+# Saves out data
+save(ocp_bladder_data, file = "../output/ocp-bladder-data.rda")
+save(nsaid_bladder_data, file = "../output/nsaid-bladder-data.rda")
+
+
