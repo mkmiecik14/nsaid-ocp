@@ -77,22 +77,42 @@ bladder_data_wide <-
     scale_vol = bt12c_scalevol
     )
 
+# missing data
+# bladder_data_wide %>% count(global_id, drug, visit_month)
+# missing_data <- bladder_pain_data %>% filter(is.na(value))
+missing <- 
+  bladder_data_wide %>% 
+  select(-notes) %>% 
+  filter(!complete.cases(.)) %>%
+  filter(complete.cases(visit_month))
+# figure out why some participants have random missing data points ^^^
+missing_bladder_data <- 
+  missing %>% 
+  left_join(
+    ., 
+    ss_masterlist %>% select(global_id:nsaid_r, notes), 
+    by = "global_id"
+  ) %>%
+  select(global_id, ss:notes, group:scale_vol)
+# saves out (uncomment to save)
+# write_csv(missing_bladder_data, "../output/missing-bladder-data.csv")
+
 # long format for all bladder data 
 bladder_data_long <-
-  bladder_pain_data_wide %>%
+  bladder_data_wide %>%
   pivot_longer(c(-global_id, -group, -drug, -notes, -visit_month, -study)) %>%
   separate(name, into = c("stage", "meas"))
 
 ########
 # PAIN #
 ########
-
 bladder_pain_data <- 
   bladder_data_long %>% 
   filter(meas == "pain") %>%
   mutate(
     stage = fct_relevel(stage, c("bl", "fs", "fu", "mt")),
-    value = as.numeric(value)
+    value = as.numeric(value),
+    drug_2 = ifelse(drug %in% c("OCP_CONT", "OCP_CYCL"), "OCP_YES", drug)
     )
 
 # Histogram
@@ -124,13 +144,6 @@ bladder_pain_data_sum <-
   ) %>%
   ungroup()
 
-# missing data
-# bladder_data_wide %>% count(global_id, drug, visit_month)
-# missing_data <- bladder_pain_data %>% filter(is.na(value))
-missing <- bladder_data_wide %>% select(-notes) %>% filter(!complete.cases(.))
-# figure out why some participants have random missing data points ^^^
-
-
 # Bladder pain plot
 pd <- position_dodge(width = .4)
 pj <- position_jitter(width = .1, height = 0)
@@ -139,12 +152,49 @@ ggplot(
   aes(factor(visit_month), m, group = drug, color = drug)
   ) +
   geom_point(
-    data = bladder_pain_data, 
+    data = bladder_pain_data %>% filter(complete.cases(visit_month)), 
     aes(y = value), 
     alpha = .3,
     position = pj, 
     shape = 16
     ) +
+  geom_line(position = pd) +
+  geom_point(position = pd) +
+  geom_errorbar(aes(ymin = m-sem, ymax = m+sem), width = .25, position = pd) +
+  labs(x = "Month", y = "VAS Pain Rating (0-100)", caption = "SEM error bars.") +
+  coord_cartesian(ylim = c(0, 100)) +
+  theme_bw() +
+  facet_wrap(~stage, nrow = 1) +
+  theme(legend.position = "bottom")
+
+# Combining OCP groups together
+# summarise
+bladder_pain_data_sum2 <-
+  bladder_pain_data %>%
+  filter(complete.cases(value)) %>% # removes missing data
+  group_by(drug_2, visit_month, stage) %>%
+  summarise(
+    m = mean(value),
+    sd = sd(value),
+    n = n(),
+    sem = sd/sqrt(n)
+  ) %>%
+  ungroup()
+
+# Bladder pain plot
+pd <- position_dodge(width = .4)
+pj <- position_jitter(width = .1, height = 0)
+ggplot(
+  bladder_pain_data_sum2, 
+  aes(factor(visit_month), m, group = drug_2, color = drug_2)
+) +
+  geom_point(
+    data = bladder_pain_data %>% filter(complete.cases(visit_month)), 
+    aes(y = value), 
+    alpha = .3,
+    position = pj, 
+    shape = 16
+  ) +
   geom_line(position = pd) +
   geom_point(position = pd) +
   geom_errorbar(aes(ymin = m-sem, ymax = m+sem), width = .25, position = pd) +
