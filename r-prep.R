@@ -13,12 +13,12 @@ library(tidyverse); library(readxl); library(Hmisc)
 library(httr); library(jsonlite);
 
 # To assess quality of linear models
-#library(performance)
+library(performance)
 
 # mixed effects modeling
-#library(lme4)
-#library(broomExtra)
-#library(lmerTest)
+library(lme4)
+library(broomExtra)
+library(lmerTest)
 
 # Probing interactions
 #library(interactions)
