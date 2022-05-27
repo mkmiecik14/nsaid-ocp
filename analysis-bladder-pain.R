@@ -56,6 +56,47 @@ bladder_pain_data_sum <-
 # writes out these summary stats
 # uncomment out to save
 # write_csv(bladder_pain_data_sum, file = "../output/bladder-pain-data-sum.csv")
+clinical_trials_ss <-
+  bladder_pain_data %>%
+  filter(group %in% c("DYSB", "BPS"), drug %nin% "NSAID")
+
+clinical_trials_summary <-
+  bladder_pain_data %>% 
+  filter(complete.cases(value)) %>%
+  filter(drug %nin% "NSAID") %>%
+  group_by(group, drug, visit_month, stage, meas) %>%
+  summarise(
+    m = mean(value),
+    sd = sd(value),
+    n = n(),
+    sem = sd/sqrt(n)
+  ) %>%
+  ungroup()
+
+# CLINICAL TRIALS DOT GOV PLOT
+pd <- position_dodge(width = .4)
+pj <- position_jitter(width = .1, height = 0)
+ggplot(
+ clinical_trials_summary, 
+  aes(factor(visit_month), m, group = interaction(drug, group), color = interaction(drug, group)
+      )
+ ) +
+  # geom_point(
+  #   data = bladder_pain_data %>% filter(complete.cases(visit_month)), 
+  #   aes(y = value), 
+  #   alpha = .3,
+  #   position = pj, 
+  #   shape = 16
+  # ) +
+  geom_line(position = pd) +
+  geom_point(position = pd) +
+  geom_errorbar(aes(ymin = m-sem, ymax = m+sem), width = .25, position = pd) +
+  labs(x = "Month", y = "VAS Pain Rating (0-100)", caption = "SEM error bars.") +
+  coord_cartesian(ylim = c(0, 100)) +
+  theme_bw() +
+  facet_wrap(~stage, nrow = 1) +
+  theme(legend.position = "bottom")
+
 
 # Bladder pain plot
 pd <- position_dodge(width = .4)
