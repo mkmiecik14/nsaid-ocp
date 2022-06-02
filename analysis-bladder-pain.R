@@ -231,6 +231,55 @@ ggplot(
   facet_wrap(~stage, nrow = 1) +
   theme(legend.position = "bottom")
 
+# Plot for CRAMPP renewal grant
+bladder_pain_data_sum3 <-
+  bladder_pain_data %>%
+  filter(
+    complete.cases(value), # removes missing data 
+    group == "DYSB" # keeps only DYSB participants
+    ) %>% 
+  group_by(drug_2, visit_month, stage) %>%
+  summarise(
+    m = mean(value),
+    sd = sd(value),
+    n = n(),
+    sem = sd/sqrt(n)
+  ) %>%
+  ungroup()
+
+pd <- position_dodge(width = .4)
+pj <- position_jitter(width = .1, height = 0)
+fu_dysb_pain_plot <- 
+  ggplot(
+    bladder_pain_data_sum3 %>% filter(stage == "fu"), 
+    aes(factor(visit_month), m, group = drug_2, color = drug_2)
+  ) +
+  geom_line(position = pd) +
+  geom_point(position = pd) +
+  geom_errorbar(aes(ymin = m-sem, ymax = m+sem), width = .15, position = pd) +
+  labs(x = "Month", y = "VAS Pain Rating @ First Urge (0-100)", caption = "SEM error bars.") +
+  coord_cartesian(ylim = c(0, 60)) +
+  scale_y_continuous(
+    breaks = seq(0, 60, 10), 
+    minor_breaks = NULL, 
+    expand = c(0,0)
+    ) +
+  scale_color_brewer(palette = "Dark2") +
+  theme_classic() +
+  theme(legend.position = "bottom")
+fu_dysb_pain_plot
+# uncomment out to save
+# ggsave(
+#   filename = "../output/fu-dysb-pain-plot.svg",
+#   plot = fu_dysb_pain_plot,
+#   width = 4.5,
+#   height = 4,
+#   units = "in"
+#   )
+
+
+
+
 ############
 #          #
 # Modeling #

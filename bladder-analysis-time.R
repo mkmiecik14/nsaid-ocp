@@ -99,6 +99,7 @@ ggplot(
   geom_point(position = pd) +
   geom_errorbar(aes(ymin = m-sem, ymax = m+sem), width = .25, position = pd) +
   labs(x = "Month", y = "Time (minutes)", caption = "SEM error bars.") +
+  scale_y_continuous(breaks = seq(0, 100, 10), minor_breaks = NULL) +
   coord_cartesian(ylim = c(0, 100)) +
   theme_bw() +
   facet_wrap(~stage, nrow = 1) +
