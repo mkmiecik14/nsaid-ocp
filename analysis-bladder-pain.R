@@ -277,6 +277,12 @@ fu_dysb_pain_plot
 #   units = "in"
 #   )
 
+# writes out n for grant
+# write_csv(
+#   bladder_pain_data_sum3 %>% filter(stage == "fu"),
+#   file = "../output/crampp-renewal-n.csv"
+# )
+
 
 
 
