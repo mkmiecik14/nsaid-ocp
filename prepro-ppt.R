@@ -7,8 +7,6 @@
 
 source("r-prep.R") # Prepare R workspace
 
-load("../output/ss-masterlist.rda")
-
 ############
 #          #
 # OCP Data #
