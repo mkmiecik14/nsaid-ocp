@@ -283,9 +283,53 @@ fu_dysb_pain_plot
 #   file = "../output/crampp-renewal-n.csv"
 # )
 
+# repeated measures anova for grant
+anova_data <- 
+  bladder_pain_data %>%
+  filter(
+    complete.cases(value), # removes missing data 
+    group == "DYSB", # keeps only DYSB participants
+    stage == "fu",
+    visit_month %in% c(0, 6),
+    global_id %nin% c(101, 108, 118, 130, 134, 140) # participants have missing data
+  ) %>%
+  mutate(across(.cols = c(drug_2, visit_month, global_id), .fns = factor))
+library(ez)
+ezANOVA(
+  data = anova_data,
+  dv = value,
+  wid = global_id,
+  within = visit_month,
+  between = drug_2,
+  type = 2
+)
 
+t.test(
+  value~visit_month, 
+  data = anova_data %>% filter(drug_2 == "NSAID"),
+  paired = TRUE
+  )
 
+t.test(
+  value~visit_month, 
+  data = anova_data %>% filter(drug_2 == "OCP_YES"),
+  paired = TRUE
+  )
 
+t.test(
+  value~visit_month, 
+  data = anova_data %>% filter(drug_2 == "OCP_NO"),
+  paired = TRUE
+  )
+
+ezANOVA(
+  data = anova_data %>% filter(drug_2 %nin% "NSAID"),
+  dv = value,
+  wid = global_id,
+  within = visit_month,
+  between = drug_2,
+  type = 2
+)
 ############
 #          #
 # Modeling #
