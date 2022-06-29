@@ -106,10 +106,10 @@ ggplot(
   aes(factor(visit_month), m, group = drug, color = drug)
   ) +
   geom_point(
-    data = bladder_pain_data %>% filter(complete.cases(visit_month)), 
-    aes(y = value), 
+    data = bladder_pain_data %>% filter(complete.cases(visit_month)),
+    aes(y = value),
     alpha = .3,
-    position = pj, 
+    position = pj,
     shape = 16
     ) +
   geom_line(position = pd) +
@@ -330,6 +330,7 @@ ezANOVA(
   between = drug_2,
   type = 2
 )
+
 ############
 #          #
 # Modeling #
@@ -338,7 +339,6 @@ ezANOVA(
 
 # FOR CLINICAL TRIALS . GOV (i.e., removes the NSAID group)
 # THIS IS AN INTENT TO TREAT (ITT) ANALYSIS THAT DOES NOT ACCOUNT FOR ADHERENCE!
-
 
 # Pain
 pain_data <- 

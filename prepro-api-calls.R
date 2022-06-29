@@ -21,7 +21,9 @@ load("../output/nsaid-screenvisit-api.rda") # NSAID screen visit
 load("../output/nsaid-baselinevisit-api.rda") # NSAID baseline visit
 load("../output/nsaid-followupvisit-api.rda") # NSAID follow-up visit
 
-# Combining data for efficiency
+# Combining data for efficiency - - - -
+
+# Assessment visit data
 # OCP DATA
 ocp_avisit_data <- 
   bind_rows(arm1_avisit1_api, arm1_avisit2_api, arm1_avisit3_api) %>%
@@ -44,7 +46,6 @@ nsaid_avisit_data <-
     )
   ) %>%
   rename(visit_month = event_id)
-  
 
 ################
 #              #
@@ -81,5 +82,18 @@ nsaid_bladder_data <-
 # Saves out data
 save(ocp_bladder_data, file = "../output/ocp-bladder-data.rda")
 save(nsaid_bladder_data, file = "../output/nsaid-bladder-data.rda")
+
+####################
+#                  #
+# DEMOGRAPHIC DATA #
+#                  #
+####################
+
+arm1_screenvisit_api %>% filter(field_name %in% c("mh2_age"))
+
+nsaid_screenvisit_api %>% filter(field_name %in% c("mh2_age"))
+
+
+  
 
 
