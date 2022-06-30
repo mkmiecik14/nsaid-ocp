@@ -2,7 +2,7 @@
 # Matt Kmiecik
 # Started: 01 APRIL 2022
 
-# Purpose: run this script to refresh Redcap annual data
+# Purpose: Preforms API calls to RedCap server 
 
 # Loads packages ----
 source("r-prep.R") # Prepares R workspace
