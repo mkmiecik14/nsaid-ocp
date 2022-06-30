@@ -89,11 +89,18 @@ save(nsaid_bladder_data, file = "../output/nsaid-bladder-data.rda")
 #                  #
 ####################
 
-arm1_screenvisit_api %>% filter(field_name %in% c("mh2_age"))
+demo_vars <- c("mh2_age", "mh3_race") # demo variables for extraction
 
-nsaid_screenvisit_api %>% filter(field_name %in% c("mh2_age"))
+#extracting race and age from ocp 
+ocp_demo <-
+  arm1_screenvisit_api %>% 
+  filter(field_name %in% demo_vars)
 
+#extracting age and race in nsaid
+nsaid_demo <-
+  nsaid_screenvisit_api %>% 
+  filter(field_name %in% demo_vars)
 
-  
-
-
+# saves out data 
+save(ocp_demo,file = "../output/ocp-demo.rda")
+save(nsaid_demo, file = "../output/nsaid-demo.rda")
