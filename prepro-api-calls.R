@@ -89,7 +89,7 @@ save(nsaid_bladder_data, file = "../output/nsaid-bladder-data.rda")
 #                  #
 ####################
 
-demo_vars <- c("mh2_age", "mh3_race") # demo variables for extraction
+demo_vars <- c("mh2_age", "mh3_race", "mh4_ethnicity") # demo variables for extraction
 
 #extracting race and age from ocp 
 ocp_demo <-

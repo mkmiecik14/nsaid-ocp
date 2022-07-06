@@ -8,6 +8,7 @@ source("r-prep.R")
 # Load
 load("../output/bladder-data-wide.rda")
 load("../output/bladder-data-long.rda")
+load("../output/ss-masterlist.rda")
 
 ########
 #      #
@@ -56,9 +57,72 @@ bladder_pain_data_sum <-
 # writes out these summary stats
 # uncomment out to save
 # write_csv(bladder_pain_data_sum, file = "../output/bladder-pain-data-sum.csv")
+
+##########################################
+#                                        #
+# DATA UPLOAD TO CLINICAL TRIALS DOT GOV #
+#                                        #
+##########################################
+
 clinical_trials_ss <-
   bladder_pain_data %>%
-  filter(group %in% c("DYSB", "BPS"), drug %nin% "NSAID")
+  filter(
+    group %in% c("DYSB", "BPS"), # only DYSB and BPS participants 
+    drug %nin% "NSAID", # Remove nsaid participants
+    stage == "fu" # only looking at bladder pain at first urge
+    )
+
+# summary stats for clinical trials data upload
+clinical_trials_ss %>%
+  filter(complete.cases(value)) %>%
+  group_by(group, drug, visit_month) %>%
+  summarise(
+    m = mean(value),
+    sd = sd(value),
+    n = n(),
+    sem = sd/sqrt(n)
+  ) %>%
+  ungroup()
+
+# linear modeling for upload
+
+clin_trials_mod_data <- 
+  clinical_trials_ss %>%
+  mutate(
+    ct_groups = interaction(group, drug), # creates groups for clinical trials
+    ct_groups = factor(ct_groups) # factorizes it for contrasts
+    )
+
+# sets orthogonal contrasts
+contrasts(clin_trials_mod_data$ct_groups) <- 
+  cbind(
+    ocp_vs_no = c(1/4, 1/4, 1/4, -3/4), # pain > no vs. yes
+    cont_vs_cyl = c(1/3, 1/3, -2/3, 0), # pain > cyl vs. cont
+    bps_vs_dysb = c(1/2, -1/2, 0, 0) # pain > bps vs. dysp
+    )
+
+# Minimum model (random intercepts only)
+fu_pain_min_mod <- 
+  lmer(
+    value ~ 1 + visit_month*ct_groups + (1 | global_id), 
+    data = clin_trials_mod_data
+    )
+summary(fu_pain_min_mod)
+## VISUALIZE THE INTERACTIONS
+
+# Maximum model (random intercepts and slopes)
+fu_pain_max_mod <- 
+  lmer(
+    value ~ 1 + visit_month*ct_groups + (1 + visit_month | global_id), 
+    data = clin_trials_mod_data
+  )
+summary(fu_pain_max_mod)
+
+# Comparing min and max models
+anova(fu_pain_min_mod, fu_pain_max_mod) # max model does not improve fit
+
+
+
 
 clinical_trials_summary <-
   bladder_pain_data %>% 
