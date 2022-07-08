@@ -107,7 +107,16 @@ fu_pain_min_mod <-
     value ~ 1 + visit_month*ct_groups + (1 | global_id), 
     data = clin_trials_mod_data
     )
-summary(fu_pain_min_mod)
+summary(fu_pain_min_mod) # THIS WAS REPORTED ON CLINICAL TRIALS . GOV
+
+library(interactions)
+interact_plot(
+  fu_pain_min_mod, 
+  pred = visit_month, 
+  modx = ct_groups, 
+  plot.points = TRUE
+  )
+
 ## VISUALIZE THE INTERACTIONS
 
 # Maximum model (random intercepts and slopes)

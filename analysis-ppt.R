@@ -148,6 +148,74 @@ ggplot(int_ppt_sum, aes(visit_month, M, group = drug, color = drug)) +
   theme_bw() +
   theme(legend.position = "bottom")
 
+# Clinical trials . gov data
+# These PPTs were reported
+int_ppt_ss %>%
+  filter(
+    group %in% c("DYSB", "BPS"), # only dysb and bps 
+    drug %nin% "NSAID", # no nsaid participants
+    site == "12" # only site 12 o'clock
+    ) %>%
+  group_by(group, drug, visit_month) %>%
+  summarise(
+    M = mean(m),
+    SD = sd(m),
+    N = n(),
+    SEM = SD/sqrt(N)
+  ) %>%
+  ungroup()
+
+# linear mixed effect model
+clin_trials_mod_data <- 
+  int_ppt_ss %>%
+  filter(
+    group %in% c("DYSB", "BPS"), # only dysb and bps 
+    drug %nin% "NSAID", # no nsaid participants
+    site == "12" # only site 12 o'clock
+  ) %>%
+  mutate(
+    ct_groups = interaction(group, drug), # creates groups for clinical trials
+    ct_groups = factor(ct_groups) # factorizes it for contrasts
+  )  
+
+# sets orthogonal contrasts
+contrasts(clin_trials_mod_data$ct_groups) <- 
+  cbind(
+    ocp_vs_no = c(-1/4, -1/4, -1/4, 3/4), # PPT < no vs. yes
+    cont_vs_cyl = c(-1/3, -1/3, 2/3, 0), # PPT < cyl vs. cont
+    bps_vs_dysb = c(-1/2, 1/2, 0, 0) # PPT < bps vs. dysp
+  )
+
+# Minimum model (random intercepts only)
+min_mod <- 
+  lmer(
+    m ~ 1 + visit_month*ct_groups + (1 | global_id), 
+    data = clin_trials_mod_data
+  )
+summary(min_mod) # THIS WAS REPORTED ON CLINICAL TRIALS . GOV
+
+library(interactions)
+interact_plot(
+  min_mod, 
+  pred = visit_month, 
+  modx = ct_groups, 
+  plot.points = TRUE
+)
+
+## VISUALIZE THE INTERACTIONS
+
+# Maximum model (random intercepts and slopes)
+max_mod <- 
+  lmer(
+    m ~ 1 + visit_month*ct_groups + (1 + visit_month | global_id), 
+    data = clin_trials_mod_data
+  )
+summary(max_mod)
+
+# Comparing min and max models
+anova(min_mod, max_mod) # max model does not improve fit
+
+
 ###############
 #             #
 #     CPM     #
