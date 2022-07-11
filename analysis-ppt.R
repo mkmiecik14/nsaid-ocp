@@ -176,7 +176,18 @@ clin_trials_mod_data <-
   mutate(
     ct_groups = interaction(group, drug), # creates groups for clinical trials
     ct_groups = factor(ct_groups) # factorizes it for contrasts
-  )  
+  ) 
+
+clin_trials_data_missng <-
+  clin_trials_mod_data %>%
+  count(global_id, visit_month) %>% 
+  pivot_wider(
+    id_cols = global_id, 
+    names_from = visit_month, 
+    names_prefix = "month", 
+    values_from = n
+  )
+
 
 # sets orthogonal contrasts
 contrasts(clin_trials_mod_data$ct_groups) <- 

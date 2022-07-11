@@ -72,6 +72,17 @@ clinical_trials_ss <-
     stage == "fu" # only looking at bladder pain at first urge
     )
 
+# Missing data (in terms of attrition!)
+clinical_trials_missing <- 
+  clinical_trials_ss %>% 
+  count(global_id, visit_month) %>% 
+  pivot_wider(
+    id_cols = global_id, 
+    names_from = visit_month, 
+    names_prefix = "month", 
+    values_from = n
+    )
+
 # summary stats for clinical trials data upload
 clinical_trials_ss %>%
   filter(complete.cases(value)) %>%

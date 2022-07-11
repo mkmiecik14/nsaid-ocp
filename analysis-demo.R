@@ -16,6 +16,7 @@ clinical_trial_ss <-
   ss_masterlist %>% 
   filter(group %in% c("DYSB", "BPS")) %>%
   filter(drug %nin% "NSAID")
+# write_csv(clinical_trial_ss, file = "../output/clinical-trial-ss.csv")
 
 # joins dfs together
 demo_long <- 
