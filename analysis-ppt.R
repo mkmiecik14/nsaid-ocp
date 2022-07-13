@@ -165,6 +165,23 @@ int_ppt_ss %>%
   ) %>%
   ungroup()
 
+# Grand average for baseline participants
+int_ppt_ss %>%
+  filter(
+    group %in% c("DYSB", "BPS"), # only dysb and bps 
+    drug %nin% "NSAID", # no nsaid participants
+    site == "12", # only site 12 o'clock
+    visit_month == 0
+    ) %>%
+  group_by(visit_month) %>%
+  summarise(
+    M = mean(m),
+    SD = sd(m),
+    N = n(),
+    SEM = SD/sqrt(N)
+  ) %>%
+  ungroup()
+
 # linear mixed effect model
 clin_trials_mod_data <- 
   int_ppt_ss %>%

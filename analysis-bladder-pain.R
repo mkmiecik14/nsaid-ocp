@@ -95,6 +95,19 @@ clinical_trials_ss %>%
   ) %>%
   ungroup()
 
+# Baseline fu for the entire clinical trials cohort
+clinical_trials_ss %>%
+  filter(complete.cases(value), visit_month == 0) %>%
+  group_by(visit_month) %>%
+  summarise(
+    m = mean(value),
+    sd = sd(value),
+    n = n(),
+    sem = sd/sqrt(n)
+  ) %>%
+  ungroup()
+  
+
 # linear modeling for upload
 
 clin_trials_mod_data <- 
