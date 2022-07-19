@@ -71,6 +71,8 @@ clinical_trials_ss <-
     drug %nin% "NSAID", # Remove nsaid participants
     stage == "fu" # only looking at bladder pain at first urge
     )
+# Frank wanted to see raw data
+write_csv(clinical_trials_ss, file = "../output/clin-trials-fu-pain-ss.csv")
 
 # Missing data (in terms of attrition!)
 clinical_trials_missing <- 

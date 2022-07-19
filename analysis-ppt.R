@@ -148,6 +148,16 @@ ggplot(int_ppt_sum, aes(visit_month, M, group = drug, color = drug)) +
   theme_bw() +
   theme(legend.position = "bottom")
 
+# Frank wanted to see the raw data
+int_ppt_12_ss <- 
+  int_ppt_ss %>%
+  filter(
+    group %in% c("DYSB", "BPS"), # only dysb and bps 
+    drug %nin% "NSAID", # no nsaid participants
+    site == "12" # only site 12 o'clock
+  )
+write_csv(int_ppt_12_ss, file = "../output/clin-trials-ppt-ss.csv")
+
 # Clinical trials . gov data
 # These PPTs were reported
 int_ppt_ss %>%
